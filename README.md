@@ -5,23 +5,29 @@ Although there have been other Mcrypt libraries created for CakePHP, I haven't s
 This behavior was based off of core CakePHP behaviors in how it functions. It will hopefully be much more capable due to this design decision.
 
 INCOMPLETE:
-- Cannot yet be called directly from within a controller (or model) by using $this->Model->encrypt()
+- Cannot yet be called directly from within a controller (or model) by using `$this->Model->encrypt()`
 - Not compatible with Containable when referring to encrypted fields in a related model
-- Is not currently able to automatically decrypt fields from an encrypted model (A) from another model (B)
-    // Example: ModelA.Field1 (encrypted)
-             $this->ModelB->find('all');	//assuming ModelA is related to ModelB and are joined in this query
-             // ... Field1 will still be encrypted.
+- Is not currently able to automatically decrypt fields from an encrypted model (A) from another related model (B). **Example:**
+
+
+```php
+// Example of issue with related models: ModelA.Field1 (encrypted)
+$this->ModelB->find('all');	//assuming ModelA is related to ModelB and are joined in this query
+// ... Field1 will still be encrypted.
+```
 
 Therefore, in its current form, this behavior works best on models whose fields can easily stand alone without being needed in other models' queries. However, that's why Github's so awesome. Share, fix, expand, share again.
 
 USAGE:
 Add the behavior to your model's $actsAs property. In the following example, the fields `username` and `barcode` will automatically be encrypted/decrypted on the fly. No further interaction is required on your part.
 
-    var $actsAs = array('Mcrypt' =>
-        array(
-            'fields' => array('username','barcode')
-        )
-    );
+```php
+var $actsAs = array('Mcrypt' =>
+    array(
+        'fields' => array('username','barcode')
+    )
+);
+```
 
 All available properties (and their descriptions) for initialization with the Mcrypt behavior:
  
