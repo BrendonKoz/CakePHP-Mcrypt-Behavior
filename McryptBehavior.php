@@ -106,7 +106,7 @@ class McryptBehavior extends ModelBehavior
  * @param array $settings Settings to override for model.
  * @access public
  */
-	function setup(&$Model, $settings = array()){
+	public function setup(Model $Model, $settings = array()){
 		$this->modelName = $Model->alias;
 		if(!isset($this->config[$Model->alias])){
 			$this->config[$Model->alias] = $this->defaultConfig;
@@ -139,7 +139,7 @@ class McryptBehavior extends ModelBehavior
 	 * @param object $string
 	 * @access protected
 	 */
-	function _setIV($string)
+	protected function _setIV($string)
 	{
 		$iv_size = mcrypt_enc_get_iv_size($this->resource);
 		if($iv_size !== 0){
@@ -162,7 +162,7 @@ class McryptBehavior extends ModelBehavior
 	 * @param object $string
 	 * @access protected
 	 */
-	function _setKey($string)
+	protected function _setKey($string)
 	{
 		$key_size = mcrypt_enc_get_key_size($this->resource);
 		if($key_size < strlen($string)){
@@ -180,7 +180,7 @@ class McryptBehavior extends ModelBehavior
 	 * @return array
 	 * @access public
 	 */
-	function beforeFind(&$Model, $query)
+	public function beforeFind(Model $Model, $query)
 	{
 		if(!empty($query['conditions']) && !empty($this->config[$Model->alias]['fields'])){
 			$query['conditions'] = $this->_setConditions($Model, $query['conditions']);
@@ -199,7 +199,7 @@ class McryptBehavior extends ModelBehavior
 	 * 				 			 contain values to encrypt.
 	 * @access private
 	 */
-	function _setConditions(&$Model, $conditions){
+	private function _setConditions($Model, $conditions){
 		if(!is_array($this->config[$Model->alias]['fields'])){
 			$this->config[$Model->alias]['fields'] = array($this->config[$Model->alias]['fields']);
 		}
@@ -220,7 +220,7 @@ class McryptBehavior extends ModelBehavior
 							$datatype = $Model->_schema[$fieldName]['type'];
 							if(!in_array($datatype, $this->config[$Model->alias]['disabledTypes']) 
 							&& !$this->isEncrypted($subvalue)
-							&& strlen($subvalue) > 0){
+							&& @strlen($subvalue) > 0){
 								$conditions[$key][$subkey] = $this->_encryptField($subvalue, $datatype);
 							}
 						}
@@ -276,7 +276,7 @@ class McryptBehavior extends ModelBehavior
 	 * @param object $Model Model using the behavior
 	 * @access public
 	 */
-	function beforeSave(&$Model){
+	public function beforeSave(Model $Model, $options = array()){
 		if(isset($this->config[$Model->alias]['fields'])){
 			//convert singular values to array
 			//we do this here in case of on-the-fly settings changes in model/controller
@@ -302,9 +302,12 @@ class McryptBehavior extends ModelBehavior
 
 			foreach($fields_to_encrypt as $field){
 				//if the data exists and is not already encrypted...
-				$datatype = $Model->_schema[$field]['type'];
+				// Initialize your values
+				$datatype = array();
 				$value = null;
 				if(array_key_exists($field, $Model->data[$Model->alias])){
+					// now you are sure that the data exists 
+					$datatype = $Model->_schema[$field]['type'];
 					$value = $Model->data[$Model->alias][$field];
 				}
 				if(!empty($value)
@@ -331,9 +334,9 @@ class McryptBehavior extends ModelBehavior
 	 * @param string $value
 	 * @access public
 	 */
-	function isEncrypted($value)
+	public function isEncrypted($value)
 	{
-		return (substr($value, 0, strlen($this->config[$this->modelName]['prefix'])) == $this->config[$this->modelName]['prefix']);
+		return (@substr($value, 0, strlen($this->config[$this->modelName]['prefix'])) == $this->config[$this->modelName]['prefix']);
 	}
 	
 	/**
@@ -344,7 +347,7 @@ class McryptBehavior extends ModelBehavior
 	 * @param string $type[optional]
 	 * @access private
 	 */
-	function _encryptField($value, $type = 'string')
+	private function _encryptField($value, $type = 'string')
 	{
 		if(strlen($value) > 0){
 			$prefix = $this->config[$this->modelName]['prefix'];
@@ -356,9 +359,9 @@ class McryptBehavior extends ModelBehavior
 					$encrypted_data = mcrypt_generic($this->resource, $value);
 					mcrypt_generic_deinit($this->resource);
 					if($type != 'binary'){
-						return $prefix.bin2hex($encrypted_data);	//for storage in database? Might need suffix!
+						return $prefix.bin2hex($encrypted_data);    //for storage in database? Might need suffix!
 					}else{
-						return $prefix.$encrypted_data;		//for storage in database? Might need suffix!
+						return $prefix.$encrypted_data;             //for storage in database? Might need suffix!
 					}
 				}else{
 					//error in mcrypt initialization
@@ -393,7 +396,7 @@ class McryptBehavior extends ModelBehavior
 	 * @param string $type[optional]
 	 * @access private
 	 */
-	function _decryptField($value, $type = 'string')
+	private function _decryptField($value, $type = 'string')
 	{
 		//ignore boolean data types
 		if($type != 'boolean' && $this->isEncrypted($value)){
@@ -441,7 +444,7 @@ class McryptBehavior extends ModelBehavior
 	 * @param object $Model Model using the behavior
 	 * @access public
 	 */
-	function decrypt(&$Model) {
+	public function decrypt(&$Model) {
 		$args = func_get_args();
 		$value = $args[1];
 		return $this->_decryptField($value);
@@ -455,7 +458,7 @@ class McryptBehavior extends ModelBehavior
 	 * @param object $Model Model using the behavior
 	 * @access public
 	 */
-	function encrypt(&$Model) {
+	public function encrypt(&$Model) {
 		$args = func_get_args();
 		$value = $args[1];
 		if(strlen($value) > 0){
@@ -475,7 +478,7 @@ class McryptBehavior extends ModelBehavior
 	 * @param boolean $primary[optional]	Whether the find is a primary find type 
 	 * @access public
 	 */
-	function afterFind(&$Model, $result, $primary = false){
+	public function afterFind(Model $Model, $result, $primary = false){
 		if(!$result || empty($this->config[$Model->alias]['fields'])){
 			return $result;
 		}
@@ -509,23 +512,25 @@ class McryptBehavior extends ModelBehavior
 	 * 									 currently iterating over
 	 * @access private
 	 */
-	function _decryptArray($values, $curModel = null)
+	private function _decryptArray($values, $curModel = null)
 	{
-		if(!is_array($values)){
+		if (!is_array($values)) {
 			return;
-		}else if(empty($values)){
+		} else if (empty($values)) {
 			return $values;
 		}
 		$index = 0;
-		foreach($values as $key => $value){
-			if(is_array($value)){
+		foreach ($values as $key => $value) {
+			if (is_array($value)) {
 				$keys = array_keys($values);
 				if(!is_numeric($keys[$index])){
 					$curModel = $keys[$index];
 				}
 				$values[$key] = $this->_decryptArray($value, $curModel);
 			}else{
-				if(in_array($key, $this->config[$this->modelName]['fields']) && $curModel == $this->modelName){
+				if (in_array($key, $this->config[$this->modelName]['fields']) && $curModel == $this->modelName) {
+					$values[$key] = $this->_decryptField($value);
+				} else if (in_array($curModel.'.'.$key, $this->config[$this->modelName]['fields'])) {
 					$values[$key] = $this->_decryptField($value);
 				}
 			}
@@ -541,7 +546,7 @@ class McryptBehavior extends ModelBehavior
 	 * @param string $source A string representing the hex source data
 	 * @access protected
 	 */
-	function _hex2bin($source)
+	protected function _hex2bin($source)
 	{
 		//Source: User comments from http://php.net/bin2hex
 		$bin = '';
