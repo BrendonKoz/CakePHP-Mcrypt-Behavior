@@ -1,9 +1,12 @@
+**Update** 2015-06-12 - Edited to work with CakePHP version 2.6.x.
+
 Although there have been other Mcrypt libraries created for CakePHP, I haven't seen any of them with nearly as many features as this one. Many of them are Components, used in the controller. That goes against the Fat Model, Skinny Controller philosophy.
 
 This behavior was based off of core CakePHP behaviors in how it functions. It will hopefully be much more capable due to this design decision.
 
 INCOMPLETE:
 - Cannot yet be called directly from within a controller (or model) by using $this->Model->encrypt()
+- Not compatible with Containable when referring to encrypted fields in a related model
 - Is not currently able to automatically decrypt fields from an encrypted model (A) from another model (B)
     // Example: ModelA.Field1 (encrypted)
              $this->ModelB->find('all');	//assuming ModelA is related to ModelB and are joined in this query
@@ -13,6 +16,7 @@ Therefore, in its current form, this behavior works best on models whose fields 
 
 USAGE:
 Add the behavior to your model's $actsAs property. In the following example, the fields `username` and `barcode` will automatically be encrypted/decrypted on the fly. No further interaction is required on your part.
+
     var $actsAs = array('Mcrypt' =>
         array(
             'fields' => array('username','barcode')
