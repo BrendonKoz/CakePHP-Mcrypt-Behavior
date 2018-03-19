@@ -248,7 +248,7 @@ class McryptBehavior extends ModelBehavior
 						if(strpos($value, '"') || strpos($value, '\'')){
 							//need to modify the value here, if key is found in value
 							//we can only match against equivalents when dealing with encrypted data
-							$pattern = '/(?:'.$Model->alias.'\.)?(\w+) (?:=|!=|<>) (\'|\")(.+)[^\\]\2/i';
+							$pattern = '/(?:'.$Model->alias.'\.)?(\w+) (?:=|!=|<>) (\'|\")(.+)[^\\\\]\2/i';
 							$matches = null;
 							preg_match($pattern, $value, $matches);
 							//matches[0] = whole string...matches[1] = fieldName...matches[2] = quote style...matches[3] = value
