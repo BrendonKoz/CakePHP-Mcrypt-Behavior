@@ -49,7 +49,7 @@ class McryptBehavior extends ModelBehavior
 	 * @var string
 	 * @access private
 	 */
-	var $modelName;		//useful for non-parent class methods
+	var $modelName;    //useful for non-parent class methods
 	
 	/**
 	 * The cipher resource, used for the PHP encryption and decryption functions.
@@ -57,7 +57,7 @@ class McryptBehavior extends ModelBehavior
 	 * @var resource
 	 * @access private
 	 */
-	var $resource;		//stores mcrypt resource object
+	var $resource;     //stores mcrypt resource object
 
 /**
  * Initiate behavior for the model using specified settings. Available settings:
