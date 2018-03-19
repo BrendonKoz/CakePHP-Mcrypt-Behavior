@@ -4,12 +4,12 @@ class McryptBehavior extends ModelBehavior
 {
 	//////////////////////////////////////////////////////////////////
 	/// NOTE: From the PHP Manual:                                 ///
-	///		  If you are for example storing the data in a MySQL   ///
-	///		  database remember that varchar fields automatically  ///
-	///		  have trailing spaces removed during insertion. As    ///
-	///		  encrypted data can end in a space (ASCII 32), the    ///
-	///		  data will be damaged by this removal. Store data in  ///
-	///		  a tinyblob/tinytext (or larger) field instead.       ///
+	///       If you are for example storing the data in a MySQL   ///
+	///       database remember that varchar fields automatically  ///
+	///       have trailing spaces removed during insertion. As    ///
+	///       encrypted data can end in a space (ASCII 32), the    ///
+	///       data will be damaged by this removal. Store data in  ///
+	///       a tinyblob/tinytext (or larger) field instead.       ///
 	//////////////////////////////////////////////////////////////////
 	/**
 	 * it is suggested, for the protection of data, that any fields stored to a
