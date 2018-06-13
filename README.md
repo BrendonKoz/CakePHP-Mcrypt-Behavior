@@ -1,4 +1,5 @@
 **Update** 2015-06-12 - Edited to work with CakePHP version 2.6.x.
+
 **Note** As of PHP 7.1, the mcrypt library is marked as Deprecated. Although OpenSsl will take its place, this Behavior will not be updated to work with 7.1 or newer.
 
 Although there have been other Mcrypt libraries created for CakePHP, I haven't seen any of them with nearly as many features as this one. Many of them are Components, used in the controller. That goes against the Fat Model, Skinny Controller philosophy.
