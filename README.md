@@ -1,4 +1,5 @@
 **Update** 2015-06-12 - Edited to work with CakePHP version 2.6.x.
+**Note** As of PHP 7.1, the mcrypt library is marked as Deprecated. Although OpenSsl will take its place, this Behavior will not be updated to work with 7.1 or newer.
 
 Although there have been other Mcrypt libraries created for CakePHP, I haven't seen any of them with nearly as many features as this one. Many of them are Components, used in the controller. That goes against the Fat Model, Skinny Controller philosophy.
 
@@ -7,14 +8,6 @@ This behavior was based off of core CakePHP behaviors in how it functions. It wi
 INCOMPLETE:
 - Cannot yet be called directly from within a controller (or model) by using `$this->Model->encrypt()`
 - Not compatible with Containable when referring to encrypted fields in a related model
-- Is not currently able to automatically decrypt fields from an encrypted model (A) from another related model (B). **Example:**
-
-
-```php
-// Example of issue with related models: ModelA.Field1 (encrypted)
-$this->ModelB->find('all');	//assuming ModelA is related to ModelB and are joined in this query
-// ... Field1 will still be encrypted.
-```
 
 Therefore, in its current form, this behavior works best on models whose fields can easily stand alone without being needed in other models' queries. However, that's why Github's so awesome. Share, fix, expand, share again.
 
