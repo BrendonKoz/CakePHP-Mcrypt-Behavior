@@ -4,23 +4,23 @@ class McryptBehavior extends ModelBehavior
 {
 	//////////////////////////////////////////////////////////////////
 	/// NOTE: From the PHP Manual:                                 ///
-	///       If you are for example storing the data in a MySQL   ///
-	///       database remember that varchar fields automatically  ///
-	///       have trailing spaces removed during insertion. As    ///
-	///       encrypted data can end in a space (ASCII 32), the    ///
-	///       data will be damaged by this removal. Store data in  ///
-	///       a tinyblob/tinytext (or larger) field instead.       ///
+	///		  If you are for example storing the data in a MySQL   ///
+	///		  database remember that varchar fields automatically  ///
+	///		  have trailing spaces removed during insertion. As    ///
+	///		  encrypted data can end in a space (ASCII 32), the    ///
+	///		  data will be damaged by this removal. Store data in  ///
+	///		  a tinyblob/tinytext (or larger) field instead.       ///
 	//////////////////////////////////////////////////////////////////
 	/**
 	 * it is suggested, for the protection of data, that any fields stored to a
 	 * database in an encrypted form be saved in a field that does not trim null
 	 * characters to save space, as the null characters may be necessary in the
 	 * encryption and decryption process under certain situations
-	 */ 
-	  	
+	 */
+
 	/**
 	 * Default configuration for this behavior
-	 * 
+	 *
 	 * @var array
 	 * @access public
 	 */
@@ -33,31 +33,31 @@ class McryptBehavior extends ModelBehavior
 		'modeDirectory' => '',
 		'disabledTypes' => array('boolean', 'integer', 'float', 'datetime', 'timestamp', 'time', 'date', 'primary_key')
 	);
-	
+
 	/**
 	 * Holds the configuration data for the behavior during runtime.
-	 * 
+	 *
 	 * @var array
 	 * @access private
 	 */
 	var $config = array();
-	
+
 	/**
 	 * Stores the current model's name/alias so that the reference variable does not
 	 * have to be passed to a majority of the class methods.
-	 * 
+	 *
 	 * @var string
 	 * @access private
 	 */
-	var $modelName;    //useful for non-parent class methods
-	
+	var $modelName;		//useful for non-parent class methods
+
 	/**
 	 * The cipher resource, used for the PHP encryption and decryption functions.
-	 * 
+	 *
 	 * @var resource
 	 * @access private
 	 */
-	var $resource;     //stores mcrypt resource object
+	var $resource;		//stores mcrypt resource object
 
 /**
  * Initiate behavior for the model using specified settings. Available settings:
@@ -74,28 +74,28 @@ class McryptBehavior extends ModelBehavior
  *
  * fields:		An array of string values representing the Model's field names to be
  * 				handled with the automatic encryption/decryption of this behavior.
- * 
+ *
  * prefix:		A value prepended to the beginning of an encrypted value's string to
  * 				assist in the identification of currently encrypted values. Defaults
  * 				to the string '$E$'.
- * 
+ *
  * autoDecrypt: Whether or not to automatically decrypt the fields or not. Decryption
  * 				can sometimes be resource intensive on miltidimensional find results.
  * 				You may disable the automatic decryption to prevent this, and then
  * 				call the behavior's public decrypt() method manually where necessary.
- * 
+ *
  * algorithmDirectory:	The location of your system's mcrypt libraries for your chosen
  * 				cipher method. This typically does not need to be set, and will default
  * 				to null, using the system default instead.
- * 
+ *
  * modeDirectory:	The location, or file path, of your system's cipher modes, also
  * 				typically does not need to be set, and will default to null, thereby
  * 				using the system's defaults instead.
- * 
- * disabledTypes:	An array of CakePHP-specific datatypes that should be ignored in 
- * 				the encryption process.  For instance, a boolean value (either 1, or 0) 
- * 				would typically have a length of 8 characters after encryption (plus the 
- * 				prefix). This would not store back in to the database.  As such, boolean 
+ *
+ * disabledTypes:	An array of CakePHP-specific datatypes that should be ignored in
+ * 				the encryption process.  For instance, a boolean value (either 1, or 0)
+ * 				would typically have a length of 8 characters after encryption (plus the
+ * 				prefix). This would not store back in to the database.  As such, boolean
  * 				values are hard-coded as disabled. This defaults to the following array:
  *				array('boolean', 'integer', 'float', 'datetime', 'timestamp', 'time',
  *						'date', 'primary_key');
@@ -114,7 +114,7 @@ class McryptBehavior extends ModelBehavior
 		//apply all user-specified criteria to our configuration
 		$this->config[$Model->alias] = array_merge($this->config[$Model->alias], (array)$settings);
 
-		//trigger an error if the chosen cipher method doesn't work on the current system 
+		//trigger an error if the chosen cipher method doesn't work on the current system
 		if(!in_array($this->config[$Model->alias]['method'], mcrypt_list_algorithms())){
 			trigger_error('The chosen cipher method, '.(string)$this->config[$Model->alias]['method'].', is not supported on this system.', E_USER_ERROR);
 		}
@@ -134,7 +134,7 @@ class McryptBehavior extends ModelBehavior
 
 	/**
 	 * Sets the Initialization Vector for the encryption/decryption process.
-	 * 
+	 *
 	 * @return string
 	 * @param object $string
 	 * @access protected
@@ -157,7 +157,7 @@ class McryptBehavior extends ModelBehavior
 
 	/**
 	 * Sets the symmetrical key for the encryption/decryption process.
-	 * 
+	 *
 	 * @return string
 	 * @param object $string
 	 * @access protected
@@ -170,7 +170,7 @@ class McryptBehavior extends ModelBehavior
 		}
 		return strrev($string);
 	}
-	
+
 	/**
 	 * Runs before a find() operation. Used to automatically encrypt any specified
 	 * fields to enable proper matching in the database.
@@ -187,13 +187,13 @@ class McryptBehavior extends ModelBehavior
 		}
 		return $query;
 	}
-	
+
 	/**
 	 * A helper method to handle the grunt work of the beforeFind method.  This
 	 * attempts to encrypt values of fields that are supposed to be encrypted
 	 * in the database for properly structured find calls.
-	 *  
-	 * @return array 
+	 *
+	 * @return array
 	 * @param object $Model Model using the behavior
 	 * @param object $conditions The conditions array in the find call that may
 	 * 				 			 contain values to encrypt.
@@ -218,7 +218,7 @@ class McryptBehavior extends ModelBehavior
 					if(in_array($fieldName, $this->config[$Model->alias]['fields'])){
 						foreach($value as $subkey => $subvalue){
 							$datatype = $Model->_schema[$fieldName]['type'];
-							if(!in_array($datatype, $this->config[$Model->alias]['disabledTypes']) 
+							if(!in_array($datatype, $this->config[$Model->alias]['disabledTypes'])
 							&& !$this->isEncrypted($subvalue)
 							&& @strlen($subvalue) > 0){
 								$conditions[$key][$subkey] = $this->_encryptField($subvalue, $datatype);
@@ -232,7 +232,7 @@ class McryptBehavior extends ModelBehavior
 					//be wary of field comparison instead of value comparison
 					if(in_array($fieldName, $this->config[$Model->alias]['fields'], true)){
 						$datatype = $Model->_schema[$fieldName]['type'];
-						if(!in_array($datatype, $this->config[$Model->alias]['disabledTypes']) 
+						if(!in_array($datatype, $this->config[$Model->alias]['disabledTypes'])
 						&& !$this->isEncrypted($value)
 						&& strlen($value) > 0){
 							$conditions[$key] = $this->_encryptField($value, $datatype);
@@ -254,7 +254,7 @@ class McryptBehavior extends ModelBehavior
 							//matches[0] = whole string...matches[1] = fieldName...matches[2] = quote style...matches[3] = value
 							if(!empty($matches) && in_array($matches[1], $this->config[$Model->alias]['fields'], true)){
 								$datatype = $Model->_schema[$matches[1]]['type'];
-								if(!in_array($datatype, $this->config[$Model->alias]['disabledTypes']) 
+								if(!in_array($datatype, $this->config[$Model->alias]['disabledTypes'])
 								&& !$this->isEncrypted($matches[3])
 								&& strlen($matches[3] > 0)){
 									$conditions[$key] = str_replace($matches[3], $this->_encryptField($matches[3], $datatype), $value);
@@ -270,8 +270,8 @@ class McryptBehavior extends ModelBehavior
 
 	/**
 	 * After save callback; encrypts any fields set for auto-encryption (if not
-	 * already encrypted) within the model prior to save. 
-	 * 
+	 * already encrypted) within the model prior to save.
+	 *
 	 * @return boolean
 	 * @param object $Model Model using the behavior
 	 * @access public
@@ -306,7 +306,7 @@ class McryptBehavior extends ModelBehavior
 				$datatype = array();
 				$value = null;
 				if(array_key_exists($field, $Model->data[$Model->alias])){
-					// now you are sure that the data exists 
+					// now you are sure that the data exists
 					$datatype = $Model->_schema[$field]['type'];
 					$value = $Model->data[$Model->alias][$field];
 				}
@@ -326,11 +326,11 @@ class McryptBehavior extends ModelBehavior
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Determines if a string value is already encrypted or not.
-	 * 
-	 * @return boolean 
+	 *
+	 * @return boolean
 	 * @param string $value
 	 * @access public
 	 */
@@ -338,11 +338,11 @@ class McryptBehavior extends ModelBehavior
 	{
 		return (@substr($value, 0, strlen($this->config[$this->modelName]['prefix'])) == $this->config[$this->modelName]['prefix']);
 	}
-	
+
 	/**
 	 * Encrypts a singular value.
-	 * 
-	 * @return string 
+	 *
+	 * @return string
 	 * @param string $value
 	 * @param string $type[optional]
 	 * @access private
@@ -387,10 +387,10 @@ class McryptBehavior extends ModelBehavior
 		}
 		return $value;
 	}
-	
+
 	/**
 	 * Used internally by the behavior to decrypt a singular value
-	 * 
+	 *
 	 * @return string
 	 * @param string $value
 	 * @param string $type[optional]
@@ -435,25 +435,25 @@ class McryptBehavior extends ModelBehavior
 		}
 		return $value;
 	}
-	
+
 	/**
 	 * Used externally (from a controller or model) to give the ability to decrypt
 	 * encrypted data manually.
-	 * 
+	 *
 	 * @return string
 	 * @param object $Model Model using the behavior
 	 * @access public
 	 */
-	public function decrypt(&$Model) {
+	public static function decrypt(&$Model) {
 		$args = func_get_args();
 		$value = $args[1];
 		return $this->_decryptField($value);
 	}
-	
+
 	/**
 	 * Used externally (from a controller or model) to give the ability to encrypt
 	 * data manually.
-	 * 
+	 *
 	 * @return string
 	 * @param object $Model Model using the behavior
 	 * @access public
@@ -471,40 +471,40 @@ class McryptBehavior extends ModelBehavior
 	/**
 	 * Resets original associations on models that may have receive multiple,
 	 * subsequent unbindings.
-	 * 
+	 *
 	 * @return mixed
 	 * @param object $Model					Model using the behavior
 	 * @param mixed $result					The result from the find operation
-	 * @param boolean $primary[optional]	Whether the find is a primary find type 
+	 * @param boolean $primary[optional]	Whether the find is a primary find type
 	 * @access public
 	 */
 	public function afterFind(Model $Model, $result, $primary = false){
 		if(!$result || empty($this->config[$Model->alias]['fields'])){
 			return $result;
 		}
-		
+
 		if(!is_array($this->config[$Model->alias]['fields'])){
 			$this->config[$Model->alias]['fields'] = array($this->config[$Model->alias]['fields']);
 		}
 
-		if($this->config[$Model->name]['autoDecrypt']){
+		if($this->config[$Model->alias]['autoDecrypt']){
 			if($primary){
 				if(is_array($result)){
-					$result = $this->_decryptArray($result);
+					$result = $this->_decryptArray($Model, $result);
 				}else{
 					//not sure if we'll ever get here...
 				}
 			}else{
 				//check for a value's prefix in key/value to decrypt it
 			}
-		}	
+		}
 		return $result;
 	}
 
 	/**
 	 * A recursive method to automatically decrypt values within a find() call's
-	 * return result array structure. 
-	 * 
+	 * return result array structure.
+	 *
 	 * @return mixed
 	 * @param object $values Find call's array structure and values
 	 * @param object $curModel[optional] A variable that holds the data on
@@ -512,7 +512,7 @@ class McryptBehavior extends ModelBehavior
 	 * 									 currently iterating over
 	 * @access private
 	 */
-	private function _decryptArray($values, $curModel = null)
+	private function _decryptArray(Model $Model, $values, $curModel = null)
 	{
 		if (!is_array($values)) {
 			return;
@@ -526,11 +526,11 @@ class McryptBehavior extends ModelBehavior
 				if(!is_numeric($keys[$index])){
 					$curModel = $keys[$index];
 				}
-				$values[$key] = $this->_decryptArray($value, $curModel);
+				$values[$key] = $this->_decryptArray($Model, $value, $curModel);
 			}else{
-				if (in_array($key, $this->config[$this->modelName]['fields']) && $curModel == $this->modelName) {
+				if (in_array($key, $this->config[$Model->alias]['fields']) && $curModel == $Model->alias) {
 					$values[$key] = $this->_decryptField($value);
-				} else if (in_array($curModel.'.'.$key, $this->config[$this->modelName]['fields'])) {
+				} else if (in_array($curModel.'.'.$key, $this->config[$Model->alias]['fields'])) {
 					$values[$key] = $this->_decryptField($value);
 				}
 			}
@@ -541,7 +541,7 @@ class McryptBehavior extends ModelBehavior
 
 	/**
 	 * A small novelty function for use with decrypting data.
-	 * 
+	 *
 	 * @return string A string representing the binary data
 	 * @param string $source A string representing the hex source data
 	 * @access protected
@@ -557,4 +557,3 @@ class McryptBehavior extends ModelBehavior
 		return $bin;
 	}
 }
-?>
